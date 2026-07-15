@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {SessionProvider} from "next-auth/react"
-import {auth} from "@/auth"
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -31,7 +32,16 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
         suppressHydrationWarning
       >
-        <body className="min-h-full flex flex-col">{children}</body>
+        <body className="">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </body>
       </html>
     </SessionProvider>
   );
