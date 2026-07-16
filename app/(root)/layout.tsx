@@ -4,8 +4,6 @@ import Footer from "@/modules/home/components/footer";
 import Header from "@/modules/home/components/header";
 import { Metadata } from "next";
 
-
-
 export const metadata: Metadata = {
   title: {
     template: "Online Code Editor",
@@ -13,7 +11,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomeLayout({ children }: { children: React.ReactNode }){
+export default function HomeLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <>
       <Header />
@@ -35,6 +37,4 @@ export default function HomeLayout({ children }: { children: React.ReactNode }){
       <Footer />
     </>
   );
-};
-
-
+}

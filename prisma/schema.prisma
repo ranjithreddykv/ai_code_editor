@@ -27,7 +27,8 @@ model User {
   image         String?
   role          UserRole        @default(USER)
   accounts      Account[]
- 
+  myPlayground Playground[] @relation("PlaygroundToUser")
+  staredMyPlayground StarMark[] @relation("UserStarMarks")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -52,4 +53,37 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
  
   @@unique([provider, providerAccountId])
+}
+
+enum Templates {
+  REACT
+  NEXTJS
+  EXPRESS
+  VUE
+  HONO
+  ANGULAR
+} 
+
+model Playground {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  description String?
+  template Templates @default(REACT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId String @db.ObjectId
+  starMark StarMark[]
+  user User @relation(name: "PlaygroundToUser", fields: [userId], references: [id] , onDelete: Cascade)
+  //todo templateFiles
+}
+
+
+model StarMark {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  playgroundId String @db.ObjectId
+  isMarked Boolean
+  createdAt DateTime @default(now())
+  user User @relation(name:"UserStarMarks", fields: [userId] ,references: [id] , onDelete: Cascade)
+  playground Playground @relation(fields:[playgroundId] , references: [id], onDelete: Cascade)
 }
