@@ -63,7 +63,7 @@ export function DashboardSidebar({
 }) {
   const pathname = usePathname();
   const [starredPlaygrounds, setStarredPlaygrounds] = useState(
-    initialPlaygroundData.filter((p) => p.starred),
+    initialPlaygroundData?.filter((p) => p.starred),
   );
   const [recentPlaygrounds, setRecentPlaygrounds] = useState(
     initialPlaygroundData,
@@ -116,13 +116,13 @@ export function DashboardSidebar({
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {starredPlaygrounds.length === 0 &&
-              recentPlaygrounds.length === 0 ? (
+              {starredPlaygrounds?.length === 0 &&
+              recentPlaygrounds?.length === 0 ? (
                 <div className="text-center text-muted-foreground py-4 w-full">
                   Create your playground
                 </div>
               ) : (
-                starredPlaygrounds.map((playground) => {
+                starredPlaygrounds?.map((playground) => {
                   const IconComponent = lucideIconMap[playground.icon] || Code2;
                   return (
                     <SidebarMenuItem key={playground.id}>
@@ -131,7 +131,7 @@ export function DashboardSidebar({
                         isActive={pathname === `/playground/${playground.id}`}
                         tooltip={playground.name}
                       >
-                        <Link href={`/playground/${playground.id}`}>
+                        <Link className="flex flex-row gap-3 " href={`/playground/${playground.id}`}>
                           {IconComponent && (
                             <IconComponent className="h-4 w-4" />
                           )}
@@ -156,9 +156,9 @@ export function DashboardSidebar({
           </SidebarGroupAction>
           <SidebarGroupContent>
             <SidebarMenu>
-              {starredPlaygrounds.length === 0 && recentPlaygrounds.length === 0
+              {starredPlaygrounds?.length === 0 && recentPlaygrounds.length === 0
                 ? null
-                : recentPlaygrounds.map((playground) => {
+                : recentPlaygrounds?.map((playground) => {
                     const IconComponent =
                       lucideIconMap[playground.icon] || Code2;
                     return (
@@ -168,7 +168,7 @@ export function DashboardSidebar({
                           isActive={pathname === `/playground/${playground.id}`}
                           tooltip={playground.name}
                         >
-                          <Link href={`/playground/${playground.id}`}>
+                          <Link className="flex flex-row gap-3" href={`/playground/${playground.id}`}>
                             {IconComponent && (
                               <IconComponent className="h-4 w-4" />
                             )}
