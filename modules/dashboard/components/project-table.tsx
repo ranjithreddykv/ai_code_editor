@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Image from "next/image";
@@ -53,6 +54,12 @@ import {
   Eye,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  deleteProjectById,
+  duplicateProjectById,
+  editProjectById,
+} from "../actions";
+import { MarkedToggleButton } from "./marked-toggle-button";
 
 interface ProjectTableProps {
   projects: Project[];
@@ -88,15 +95,35 @@ export default function ProjectTable({
   const [favoutrie, setFavourite] = useState(false);
 
   const handleEditClick = (project: Project) => {
-    //    Write your logic here
+    setSelectedProject(project);
+    setEditData({
+      title: project.title,
+      description: project.description || "",
+    });
+    setEditDialogOpen(true);
   };
 
   const handleDeleteClick = async (project: Project) => {
-    //    Write your logic here
+    setSelectedProject(project);
+    setDeleteDialogOpen(true);
   };
 
   const handleUpdateProject = async () => {
-    //    Write your logic here
+    if (!selectedProject) return;
+
+    try {
+      setIsLoading(true);
+      await editProjectById(selectedProject.id, editData);
+      setEditDialogOpen(false);
+      setSelectedProject(null);
+      toast.success("Project updated successfully");
+    } catch (error) {
+      toast.error("Failed to update project");
+      console.log(error);
+    } finally {
+      setEditDialogOpen(false);
+      setIsLoading(false);
+    }
   };
 
   const handleMarkasFavorite = async (project: Project) => {
@@ -104,15 +131,42 @@ export default function ProjectTable({
   };
 
   const handleDeleteProject = async () => {
-    //    Write your logic here
+    if (!selectedProject || !deleteDialogOpen) return;
+    try {
+      setIsLoading(true);
+      await deleteProjectById(selectedProject.id);
+      setDeleteDialogOpen(false);
+      setSelectedProject(null);
+      toast.success("Project deleted successfully");
+    } catch (error) {
+      toast.error("Error occoured while deleting project");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+      setDeleteDialogOpen(false);
+    }
   };
 
   const handleDuplicateProject = async (project: Project) => {
-    //    Write your logic here
+    setSelectedProject(project);
+    if (!onDuplicateProject || !selectedProject) return;
+
+    try {
+      setIsLoading(true);
+      await duplicateProjectById(selectedProject.id);
+      toast.success("Project duplicated successfully");
+    } catch (error) {
+      toast.error("Error occoured while duplicating Project");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const copyProjectUrl = (projectId: string) => {
-    //    Write your logic here
+    const url = `${window.location.origin}/playground/${projectId}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Project url copied to clipboard");
   };
 
   return (
@@ -160,7 +214,7 @@ export default function ProjectTable({
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full overflow-hidden">
                       <Image
-                        src={project.user.image || "/placeholder.svg"}
+                        src={project.user.image}
                         alt={project.user.name}
                         width={32}
                         height={32}
@@ -180,10 +234,10 @@ export default function ProjectTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem asChild>
-                        {/* <MarkedToggleButton
-                          markedForRevision={project.Starmark[0]?.isMarked}
+                        <MarkedToggleButton
+                          markedForRevision={project?.starMark[0]?.isMarked}
                           id={project.id}
-                        /> */}
+                        />
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link
@@ -247,8 +301,8 @@ export default function ProjectTable({
           <DialogHeader>
             <DialogTitle>Edit Project</DialogTitle>
             <DialogDescription>
-              Make changes to your project details here. Click save when you're
-              done.
+              Make changes to your project details here. Click save when
+              you@apos re done.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -305,9 +359,9 @@ export default function ProjectTable({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Project</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete @quote{selectedProject?.title}@quote? This
-              action cannot be undone. All files and data associated with this
-              project will be permanently removed.
+              Are you sure you want to delete @quote{selectedProject?.title}
+              @quote? This action cannot be undone. All files and data
+              associated with this project will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

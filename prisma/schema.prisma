@@ -27,8 +27,8 @@ model User {
   image         String?
   role          UserRole        @default(USER)
   accounts      Account[]
-  myPlayground Playground[] @relation("PlaygroundToUser")
-  staredMyPlayground StarMark[] @relation("UserStarMarks")
+  myPlayground Playground[] 
+  staredPlayground StarMark[] 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -73,17 +73,29 @@ model Playground {
   updatedAt DateTime @updatedAt
   userId String @db.ObjectId
   starMark StarMark[]
-  user User @relation(name: "PlaygroundToUser", fields: [userId], references: [id] , onDelete: Cascade)
-  //todo templateFiles
+  
+  user User @relation(fields: [userId], references: [id] , onDelete: Cascade)
+  
+  templateFiles TemplateFile[]
 }
 
 
 model StarMark {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(cuid()) @map("_id") 
   userId String @db.ObjectId
   playgroundId String @db.ObjectId
   isMarked Boolean
   createdAt DateTime @default(now())
-  user User @relation(name:"UserStarMarks", fields: [userId] ,references: [id] , onDelete: Cascade)
+  user User @relation(fields: [userId] ,references: [id] , onDelete: Cascade)
   playground Playground @relation(fields:[playgroundId] , references: [id], onDelete: Cascade)
+  @@unique([userId , playgroundId])
+}
+
+model TemplateFile {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  content Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  playgroundId String @unique @db.ObjectId
+  playground Playground @relation(fields: [playgroundId] , references: [id] , onDelete: Cascade)
 }
