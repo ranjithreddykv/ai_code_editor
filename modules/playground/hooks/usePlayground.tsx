@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from "react";
 import type { TemplateFolder } from "../lib/path-to-json";
 import { toast } from "sonner";
 import { getPlaygroundById, SaveUpdatedCode } from "../actions";
+import { templatePaths } from '../../../lib/template';
 
 interface PlaygroundData {
   id: string;
-  name?: string;
+  title?: string;
   [key: string]: any;
 }
 
@@ -46,10 +47,7 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
       if (!res.ok) throw new Error(`Failed to load template : ${res.status}`);
       const templateRes = await res.json();
       if (templateRes.templateJson && Array.isArray(templateRes.templateJson.items)) {
-        setTemplateData({
-          folderName: "Root",
-          items: templateRes.templateJson,
-        });
+        setTemplateData(templateRes.templateJson);
       } else {
         setTemplateData({
           folderName: "Root",

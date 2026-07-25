@@ -11,6 +11,7 @@ export const getPlaygroundById = async (id: string) => {
         id,
       },
       select: {
+        title: true,
         templateFiles: {
           select: {
             content: true,
@@ -42,14 +43,6 @@ export const SaveUpdatedCode = async (
       create: {
         playgroundId,
         content: JSON.stringify(data),
-      },
-    });
-    await db.playground.update({
-      where: {
-        id:playgroundId
-      },
-      data: {
-
       },
     });
     return updatedPlayground;
