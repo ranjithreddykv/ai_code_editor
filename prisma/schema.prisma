@@ -73,10 +73,9 @@ model Playground {
   updatedAt DateTime @updatedAt
   userId String @db.ObjectId
   starMark StarMark[]
-  
+  templateFiles TemplateFile[]
   user User @relation(fields: [userId], references: [id] , onDelete: Cascade)
   
-  templateFiles TemplateFile[]
 }
 
 
