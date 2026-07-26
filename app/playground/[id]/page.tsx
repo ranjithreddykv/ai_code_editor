@@ -23,8 +23,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 import PlaygroundEditor from "@/modules/playground/components/playground-editor";
+import { useWebContainer } from "@/modules/webcontainers/hooks/useWebContainer";
+import WebContainerPreview from "@/modules/webcontainers/components/webcontainer-preview";
 
 const MainPlaygroundPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,6 +39,7 @@ const MainPlaygroundPage = () => {
     loadPlayground,
     saveTemplateData,
   } = usePlayground(id);
+  // file explorer operations
   const {
     activeFileId,
     closeAllFiles,
@@ -48,6 +51,15 @@ const MainPlaygroundPage = () => {
     setOpenFiles,
     closeFile,
   } = useFileExplorer();
+
+  //web container
+  const {serverUrl,
+    isLoading:containerLoading,
+    error : containerError,
+    instance ,
+    writeFileSync
+  } = useWebContainer({templateData});
+
 
   // set template data when playground loads
   useEffect(() => {
@@ -211,6 +223,26 @@ const MainPlaygroundPage = () => {
                         onContentChange={() => {}}
                       />
                     </ResizablePanel>
+                    {
+                      isPreviewVisible && (
+                        <>
+                          <ResizableHandle/>
+                          <ResizablePanel
+                          defaultSize={50}
+                          >
+                            <WebContainerPreview 
+                            templateData = {templateData}
+                            instance = {instance}
+                            writeFileSync = {writeFileSync}
+                            isLoading = {containerLoading}
+                            error = {containerError}
+                            serverUrl = {serverUrl!}
+                            forceResetUp = {false}
+                            />
+                          </ResizablePanel>
+                        </>
+                      )
+                    }
                   </ResizablePanelGroup>
                 </div>
               </div>

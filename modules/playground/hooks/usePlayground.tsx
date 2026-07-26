@@ -12,7 +12,8 @@ interface PlaygroundData {
 
 interface UsePlaygroundReturn {
   playgroundData: PlaygroundData | null;
-  templateData: TemplateFolder | null;
+  // i have remove null here if i get error i will comback to debug
+  templateData: TemplateFolder 
   isLoading: boolean;
   error: string | null;
   loadPlayground: () => Promise<void>;
@@ -35,7 +36,7 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
       // @ts-ignore
       setPlaygroundData(data);
       const rawContent = data?.templateFiles?.[0]?.content;
-      console.log("Raw content " , rawContent)
+      
       if (typeof rawContent === "string") {
         const parseContent = JSON.parse(rawContent);
         setTemplateData(parseContent);
