@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { TemplateFolder } from "../lib/path-to-json";
 import { toast } from "sonner";
 import { getPlaygroundById, SaveUpdatedCode } from "../actions";
-import { templatePaths } from '../../../lib/template';
+import { templatePaths } from "../../../lib/template";
 
 interface PlaygroundData {
   id: string;
@@ -13,7 +13,7 @@ interface PlaygroundData {
 interface UsePlaygroundReturn {
   playgroundData: PlaygroundData | null;
   // i have remove null here if i get error i will comback to debug
-  templateData: TemplateFolder 
+  templateData: TemplateFolder;
   isLoading: boolean;
   error: string | null;
   loadPlayground: () => Promise<void>;
@@ -36,7 +36,7 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
       // @ts-ignore
       setPlaygroundData(data);
       const rawContent = data?.templateFiles?.[0]?.content;
-      
+
       if (typeof rawContent === "string") {
         const parseContent = JSON.parse(rawContent);
         setTemplateData(parseContent);
@@ -47,14 +47,16 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
       const res = await fetch(`/api/template/${id}`);
       if (!res.ok) throw new Error(`Failed to load template : ${res.status}`);
       const templateRes = await res.json();
-      if (templateRes.templateJson && Array.isArray(templateRes.templateJson.items)) {
+      if (
+        templateRes.templateJson &&
+        Array.isArray(templateRes.templateJson.items)
+      ) {
         setTemplateData(templateRes.templateJson);
       } else {
         setTemplateData({
           folderName: "Root",
           items: [],
         });
-
       }
       toast.success("Template loaded successfully");
     } catch (error) {
@@ -66,28 +68,29 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
     }
   }, [id]);
   const saveTemplateData = useCallback(
-    async(data:TemplateFolder)=>{
-        try{
-        await SaveUpdatedCode(id , data);
+    async (data: TemplateFolder) => {
+      try {
+        await SaveUpdatedCode(id, data);
         setTemplateData(data);
         toast.success("Changes saved successfully");
-        }catch(error){
-            console.error("Error saving template data", error);
-            setError("Failed to save changes");
-            toast.error("Failed to save changes");
-        }
-    }
-  ,[id])
-  useEffect(()=>{
+      } catch (error) {
+        console.error("Error saving template data", error);
+        setError("Failed to save changes");
+        toast.error("Failed to save changes");
+      }
+    },
+    [id],
+  );
+  useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadPlayground()
-  },[loadPlayground])
+    loadPlayground();
+  }, [loadPlayground]);
   return {
     playgroundData,
     templateData,
     isLoading,
     error,
-    loadPlayground ,
-    saveTemplateData
-  }
+    loadPlayground,
+    saveTemplateData,
+  };
 };
