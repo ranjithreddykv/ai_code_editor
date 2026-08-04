@@ -2,6 +2,8 @@
 // we have to transform our preview file and folder structure compatible with web container
 // in database we store files differently which are not compitable with webcontainer
 
+import { TemplateFile, TemplateFolder } from "@/modules/playground/types";
+
 interface TemplateItem {
   filename: string;
   fileExtension: string;
@@ -27,10 +29,7 @@ type WebContainerFileSystem = Record<
   WebContainerFile | WebContainerDirectory
 >;
 
-export function transformToWebContainerFormat(template: {
-  folderName: string;
-  items: TemplateItem[];
-}): WebContainerFileSystem {
+export function transformToWebContainerFormat(template :TemplateItem): WebContainerFileSystem {
   function processItem(
     item: TemplateItem,
   ): WebContainerFile | WebContainerDirectory {
@@ -60,7 +59,7 @@ export function transformToWebContainerFormat(template: {
 
   const result: WebContainerFileSystem = {};
 
-  template.items.forEach((item) => {
+  template?.items?.forEach((item) => {
     const key = item.fileExtension
       ? `${item.filename}.${item.fileExtension}`
       : item.folderName!;

@@ -1,19 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
-import type { TemplateFolder } from "../lib/path-to-json";
 import { toast } from "sonner";
-import { getPlaygroundById, SaveUpdatedCode } from "../actions";
-import { templatePaths } from "../../../lib/template";
+import {
+  getPlaygroundById,
+  SaveUpdatedCode,
+} from "@/modules/playground/actions";
+import type { TemplateFolder } from "@/modules/playground/lib/path-to-json";
 
 interface PlaygroundData {
   id: string;
-  title?: string;
+  name?: string;
   [key: string]: any;
 }
 
 interface UsePlaygroundReturn {
   playgroundData: PlaygroundData | null;
-  // i have remove null here if i get error i will comback to debug
-  templateData: TemplateFolder;
+  templateData: TemplateFolder | null;
   isLoading: boolean;
   error: string | null;
   loadPlayground: () => Promise<void>;
@@ -25,48 +26,57 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
     null,
   );
   const [templateData, setTemplateData] = useState<TemplateFolder | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const loadPlayground = useCallback(async () => {
     if (!id) return;
+
     try {
       setIsLoading(true);
       setError(null);
-      const data = await getPlaygroundById(id);
-      // @ts-ignore
-      setPlaygroundData(data);
-      const rawContent = data?.templateFiles?.[0]?.content;
 
+      const data = await getPlaygroundById(id);
+      //   @ts-ignore
+      setPlaygroundData(data);
+
+      const rawContent = data?.templateFiles?.[0]?.content;
       if (typeof rawContent === "string") {
-        const parseContent = JSON.parse(rawContent);
-        setTemplateData(parseContent);
+        const parsedContent = JSON.parse(rawContent);
+        setTemplateData(parsedContent);
         toast.success("Playground loaded successfully");
         return;
       }
-      // load template from api if not in saved content
+
+      // Load template from API if not in saved content
       const res = await fetch(`/api/template/${id}`);
-      if (!res.ok) throw new Error(`Failed to load template : ${res.status}`);
+      if (!res.ok) throw new Error(`Failed to load template: ${res.status}`);
+
       const templateRes = await res.json();
-      if (
-        templateRes.templateJson &&
-        Array.isArray(templateRes.templateJson.items)
-      ) {
-        setTemplateData(templateRes.templateJson);
-      } else {
+      if (templateRes.templateJson && Array.isArray(templateRes.templateJson)) {
         setTemplateData({
           folderName: "Root",
-          items: [],
+          items: templateRes.templateJson,
         });
+      } else {
+        setTemplateData(
+          templateRes.templateJson || {
+            folderName: "Root",
+            items: [],
+          },
+        );
       }
+
       toast.success("Template loaded successfully");
     } catch (error) {
-      console.error("Error loading playground", error);
-      setError("Failed to load the playground");
-      toast.error("Failed to load the playground");
+      console.error("Error loading playground:", error);
+      setError("Failed to load playground data");
+      toast.error("Failed to load playground data");
     } finally {
       setIsLoading(false);
     }
   }, [id]);
+
   const saveTemplateData = useCallback(
     async (data: TemplateFolder) => {
       try {
@@ -74,17 +84,19 @@ export const usePlayground = (id: string): UsePlaygroundReturn => {
         setTemplateData(data);
         toast.success("Changes saved successfully");
       } catch (error) {
-        console.error("Error saving template data", error);
-        setError("Failed to save changes");
+        console.error("Error saving template data:", error);
         toast.error("Failed to save changes");
+        throw error;
       }
     },
     [id],
   );
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadPlayground();
   }, [loadPlayground]);
+
   return {
     playgroundData,
     templateData,

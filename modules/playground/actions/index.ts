@@ -22,6 +22,7 @@ export const getPlaygroundById = async (id: string) => {
     return playground;
   } catch (error) {
     console.log(error);
+    return null;
   }
 };
 
