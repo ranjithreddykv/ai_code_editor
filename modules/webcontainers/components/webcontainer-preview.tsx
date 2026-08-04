@@ -7,10 +7,10 @@ import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import TerminalComponent from "./terminal";
 import { WebContainer } from "@webcontainer/api";
-import { TemplateFolder } from "@/modules/playground/lib/path-to-json";
+import { TemplateItem } from "@/modules/playground/lib/path-to-json";
 
 interface WebContainerPreviewProps {
-  templateData: TemplateFolder;
+  templateData: TemplateItem;
   serverUrl: string;
   isLoading: boolean;
   error: string | null;
@@ -24,8 +24,6 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
   error,
   instance,
   isLoading,
-  serverUrl,
-  writeFileSync,
   forceResetup = false,
 }) => {
   const [previewUrl, setPreviewUrl] = useState<string>("");
@@ -123,7 +121,6 @@ const WebContainerPreview: React.FC<WebContainerPreviewProps> = ({
           );
         }
 
-        // @ts-ignore
         const files = transformToWebContainerFormat(templateData);
 
         setLoadingState((prev) => ({
