@@ -74,7 +74,6 @@ export const useAISuggestions = (): UseAISuggestionsReturn => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-
           if (!response.ok) {
             throw new Error(`API responded with status ${response.status}`);
           }
